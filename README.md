@@ -1,13 +1,24 @@
+<a id="top"></a>
+
 # GEOL0069 Week 4- Echo Classification (Unsupervised Learning)
+
+## **Table of Contents**
+1. [Methods](#methods)
+2. [Workflow](#workflow)
+3. [Getting Started](#getting-started)
+4. [Results](#results)
+5. [References](#references)
 
 ## **Goal of this week:** 
 1) Classify SRAL echoes into lead and sea ice by using unsupervised machine learning methods.
 2) Plot mean and standard deviation echo shapes for each class.
 3) Evaluate our result against ESA official classification by using a confusion matrix.
 
-## Link to full ipynb notebook
-📓 Notebook: [notebooks/Week4_Echo_Classification.ipynb](notebooks/Week4_Echo_Classification.ipynb).
+## **Link to Full ipynb Notebook**
+📓 Notebook: [Chapter1_Unsupervised_Learning_Methods](./Chapter1_Unsupervised_Learning_Methods.ipynb).
 You can access the full version of this week's code by clicking above link.
+
+<a id="methods"></a>
 
 ## **Methods**
 ### 1) K-means Clustering 
@@ -47,18 +58,24 @@ Gaussian Mixture Models (GMM) are a probabilistic model for representing normall
 ### ▶ The EM Algorithm in GMM
 The Expectation-Maximization (EM) algorithm is a two-step process:
 1) Expectation Step (E-step): Calculate the probability that each data point belongs to each cluster.
-2) aximization Step (M-step): Update the parameters of the Gaussians (mean, covariance, and mixing coefficient) to maximize the likelihood of the data given these assignments.
+2) Maximization Step (M-step): Update the parameters of the Gaussians (mean, covariance, and mixing coefficient) to maximize the likelihood of the data given these assignments.
 This process is repeated until convergence, meaning the parameters do not significantly change from one iteration to the next.
 
 ### ▶ Advantages of GMM
 - Soft Clustering: Provides a probabilistic framework for soft clustering, giving more information about the uncertainties in the data assignments.
 - Cluster Shape Flexibility: Can adapt to ellipsoidal cluster shapes, thanks to the flexible covariance structure.
 
-## **Workflow of this notebook**
+<p align="right"><a href="#top">⬆ Back to top</a></p>
+
+<a id="workflow"></a>
+
+## **Workflow**
 1) Install the necessary package and setup environment.
 2) Download data.
 3) Implement unsupervised method (GMM) to these data.
 4) Obtain result and save,
+
+<a id="getting-started"></a>
 
 ## **Getting Started**
 ### ▶ Where to run this notebook?
@@ -79,54 +96,104 @@ drive.mount('/content/drive')
 ```
 
 ### ▶ Want to try GMM and K-Means model on Sentinel-2 Image?
-Please download the notebook and nevigate to 'K-means Implementation' and 'GMM Implementation' section for detailed code and results. This instruction will be mainly focused on to use GMM to do altimetry classification on sea ice and leads.
+Please download the notebook and navigate to 'K-means Implementation' and 'GMM Implementation' section for detailed code and results. This instruction will be mainly focused on to use GMM to do altimetry classification on sea ice and leads.
 
-## **Result**
+<p align="right"><a href="#top">⬆ Back to top</a></p>
+
+<a id="results"></a>
+
+# **Result**
+## The result of this notebook includes:
+### ▶ All echoes:
+Profile of all echoes is obtained by below section of code:
+```x = np.stack([np.arange(1,waves_cleaned.shape[1]+1)]*waves_cleaned.shape[0])
+plt.plot(x,waves_cleaned)  # plot of all the echoes
+```
+
+![All Echoes](./images/VisualisationAll.png)
+
 ### ▶ Mean and standard deviation of all the echoes:
+Mean and std. is obtained by below section of code:
+```
+plt.plot(mean_all, label='Average Echo (All Data)', color='black', linewidth=2)
+plt.fill_between(range(len(mean_all)),
+                 mean_all - std_all,
+                 mean_all + std_all,
+                 color='#5CE85A', alpha=0.3, label='Standard Deviation')
+                
+```
+![Mean and standard deviation for all echoes](./images/Mean_and_Standard_Deviation_All.png)
+
+### ▶ Separated Diagram for Sea ice and leads.
+1) Sea ice echoes profile
+The result of seaice class profile is obtained by below code:
+```
+x = np.stack([np.arange(1,waves_cleaned[clusters_gmm==0].shape[1]+1)]*waves_cleaned[clusters_gmm==0].shape[0])
+plt.plot(x,waves_cleaned[clusters_gmm==0])  # plot of all the echoes
+plt.show()
+```
+![Sea ice echoes profile](./images/VisualisationICE.png)
+
+2) Leads echoes profile
+The results of lead class profile is obtained by below code:
+```
+x = np.stack([np.arange(1,waves_cleaned[clusters_gmm==1].shape[1]+1)]*waves_cleaned[clusters_gmm==1].shape[0])
+plt.plot(x,waves_cleaned[clusters_gmm==1])  # plot of all the echoes
+plt.show()
+```
+![Lead echoes profile](./images/VisualisationLEAD.png)
+
+### ▶ Separated Diagrams of Mean and Standard Deviation for Sea ice and leads.
+The result of mean and std. for both class is obtained by below code:
 ```
 mean_ice = np.mean(waves_cleaned[clusters_gmm==0],axis=0)
 std_ice = np.std(waves_cleaned[clusters_gmm==0], axis=0)
-
 plt.plot(mean_ice, label='ice')
 plt.fill_between(range(len(mean_ice)), mean_ice - std_ice, mean_ice + std_ice, alpha=0.3)
-
-
 mean_lead = np.mean(waves_cleaned[clusters_gmm==1],axis=0)
 std_lead = np.std(waves_cleaned[clusters_gmm==1], axis=0)
-
 plt.plot(mean_lead, label='lead')
 plt.fill_between(range(len(mean_lead)), mean_lead - std_lead, mean_lead + std_lead, alpha=0.3)
+```
+![Mean and std. for both class](./images/Mean_and_Standard_Deviation_Seperate.png)
 
-plt.title('Plot of mean and standard deviation for each class')
-plt.legend()
-```
-! [Mean and standard deviation for all echoes]()
+<p align="right"><a href="#top">⬆ Back to top</a></p>
 
-### ▶ All echoes:
-```
-x = np.stack([np.arange(1,waves_cleaned.shape[1]+1)]*waves_cleaned.shape[0])
-plt.plot(x,waves_cleaned)  # plot of all the echos
-plt.show()
-```
-! [All Echoes]()
 
-### ▶ Sea ice and lead echoes seperated- diagram for each:
-1) Sea ice echoes profile
-```
-x = np.stack([np.arange(1,waves_cleaned[clusters_gmm==0].shape[1]+1)]*waves_cleaned[clusters_gmm==0].shape[0])
-plt.plot(x,waves_cleaned[clusters_gmm==0])  # plot of all the echos
-plt.show()
-```
-! [Sea ice echoes profile]()
+### ▶ Alignment of Waves
+Waveform alignment is performed to correct for onboard tracker jitter and geophysical delays, ensuring that the classification model distinguishes surface types based on their true echo shape rather than artificial time-shifts.
 
-2) Leads echoes profile
-```
-x = np.stack([np.arange(1,waves_cleaned[clusters_gmm==1].shape[1]+1)]*waves_cleaned[clusters_gmm==1].shape[0])
-plt.plot(x,waves_cleaned[clusters_gmm==1])  # plot of all the echos
-plt.show()
-```
-! [Lead echoes profile]()
+Below is the result of waveform alignment.
+
+![Aligned Wave Example](./images/AggregrateComparasion.png)
+
+After physical alignment, the main return is centred at a consistent reference bin across the track, reducing peak-bin spread (lower σ) and producing sharper, more interpretable class-mean waveforms (less peak-smearing), especially for lead echoes.
+
+<p align="right"><a href="#top">⬆ Back to top</a></p>
+
 
 ### ▶ Compare with ESA data (Confusion Matrix)
-In the ESA dataset, sea ice = 1 and lead = 2. Therefore, we need to subtract 1 from it so our predicted labels are comparable with the official product labels.
-! [Confusion Matrix]()
+Confusion matrices provide a concise, standard way to quantify agreement between our predicted classes and the ESA official labels, revealing not only overall correctness but also the type and direction of errors (e.g., sea-ice misclassified as lead and vice versa). The confusion matrix (CM) results are shown below.
+
+In the ESA dataset, sea ice = 1 and lead = 2. Therefore, we need to subtract 1 from it so our predicted labels are comparable with the official product labels. Since GMM cluster labels are arbitrary, we align cluster IDs with physical classes by matching to ESA labels (and flipping labels if necessary).
+
+![Confusion Matrix](./images/Confusion_Matrix.png)
+
+<a id="references"></a>
+
+## **References**
+MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability, Volume 1: Statistics, [online] 5.1(1), pp.281–298. Available at: https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/Proceedings-of-the-Fifth-Berkeley-Symposium-on-Mathematical-Statistics-and/chapter/Some-methods-for-classification-and-analysis-of-multivariate-observations/bsmsp/1200512992. 
+
+Mclachlan, G.J., Peel, D. and Netlibrary, I. (2000). Finite mixture models. New York: Wiley.
+
+Reynolds, D. (2009). Gaussian Mixture Models. Encyclopedia of Biometrics, pp.659–663. doi:https://doi.org/10.1007/978-0-387-73003-5_196.
+
+<div align="right"><a href="#top">⬆ Back to top</a></div>
+
+## **Contact**
+Entao: zcfaew0@ucl.ac.uk
+
+Personal: ddavidw.et@gmail.com
+
+## **Acknowledgments**
+For everyone contributed to module GEOL0069.
